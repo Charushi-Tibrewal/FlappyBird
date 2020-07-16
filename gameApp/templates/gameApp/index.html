@@ -4,8 +4,19 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	</head>
-	<body 
-		style="background-image: url('{% static 'gameApp/img/bg.jpg'' %}');">
+		<style>
+			body{
+				background-image: url('{% static 'gameApp/img/bg.jpg' %}');
+				background-repeat: no-repeat;
+				background-size: cover;
+				background-position: absolute;
+				top: 0px;
+				left: 0px;
+				right: 0px;
+				bottom: 0px;
+				margin: auto;
+			}
+		</style>
 		<center>
 			<a href="game">
 				<button type="button" class="btn btn-dark">PLAY NOW</button>
@@ -25,7 +36,4 @@
 				cursor: pointer;
 			}			
 		</style>
-	</body>
 </html> 
-
-	

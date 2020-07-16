@@ -1,13 +1,11 @@
-/* 
-2. Box should be in center of screen.
-3. Detects when the box falls down (Bird is dead).
-*/
+
 var flappyGamePiece;
 
 function startGame() {
     flappyGameArea.start();
-    flappyGamePiece = new component(90, 90, "black", 10, 120)
-    //flappyGamePiece.style = "top: 50%; left:50%; margin-top: -100px; margin-left: -200px;";  
+    width = getSize(window.innerWidth);
+    height = getSize(window.innerHeight);
+    flappyGamePiece = new component(90, 90, "black", width/2, 50)
 }
 
 var flappyGameArea = {
@@ -19,7 +17,7 @@ var flappyGameArea = {
         this.canvas.height = getSize(window.innerHeight);
 
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval = setInterval(updateGameArea, 20);
+        this.interval = setInterval(updateGameArea, 5);
         window.addEventListener('keydown', function(e) {
             flappyGameArea.key = e.keyCode;
         });
@@ -32,19 +30,33 @@ var flappyGameArea = {
             flappyGameArea.canvas.width = getSize(window.innerWidth);
             flappyGameArea.canvas.height = getSize(window.innerHeight);
 
+            flappyGamePiece.x = (getSize(window.innerWidth)/2);
         });
     }, 
+
     clear : function(){
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
 
+//Screen size/resizing  
 function getSize(size) {
     size = size - 30;
     var temp = size % 10;
     size = size - temp;
 
     return size;
+}
+
+function hitBottom() {
+    var bottom = flappyGameArea.canvas.height - flappyGamePiece.height;
+    if (flappyGamePiece.y > bottom) {
+        flappyGamePiece.y = bottom;
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 function component(width, height, color, x, y) {
@@ -62,7 +74,7 @@ function component(width, height, color, x, y) {
     }
     this.newPos = function() {
         this.x += this.speedX;
-        this.y += this.speedY;      
+        this.y += this.speedY;    
     }
 }
 
@@ -78,6 +90,23 @@ function updateGameArea() {
     flappyGamePiece.speedY += 1;
     flappyGamePiece.newPos();    
     flappyGamePiece.update();
+    //prompts comfirm box 
+    if (hitBottom()) {
+        flappyGameArea.clear();
+        width = getSize(window.innerWidth);
+        flappyGamePiece = new component(90, 90, "black", width/2, 50);
+        var confirmed = confirm("Restart Game ?");
+        console.log(confirmed);
+        //Pressed ok (true) restarts game
+        if (confirmed) {
+            console.log("me");
+        } else { //Cancel (false) changes url location to home
+            console.log("you");
+            console.log(window.location.href);
+            window.location.replace('/home');
+            console.log("wtf");
+        }
+    }
 }
 
 
