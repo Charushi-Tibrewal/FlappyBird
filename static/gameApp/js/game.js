@@ -1,21 +1,23 @@
 var flappyGamePiece;
+var myScore;
 var myObstacles = [];
-var gameDifficulty = 0.2; 
+var gameDifficulty = 0.2;
 
 function startGame() {
     flappyGameArea.start();
     var width = getSize(window.innerWidth);
     var height = getSize(window.innerHeight);
-    console.log(height);
+    //console.log(height);
     flappyGamePiece = new component(90, 90, "black", width*0.3, height/2);
     createObstacles(width, height);
+    myScore = new component("30px", "Consolas", "black", 280, 40, "text");
 }
 
 function getObstacle(location, canvasWidth, canvasHeight) {
 
      var obstacleHeight = gameDifficulty * canvasHeight; //minimum height of the obstacle.  
      obstacleHeight = obstacleHeight + randomNumber(0, gameDifficulty*canvasHeight);
-     console.log(obstacleHeight);
+     //console.log(obstacleHeight);
 
      var obstacleLocationX = canvasWidth; //minimum x value (User eventually sees the obstacles, because its outside the canvas.)
 
@@ -43,6 +45,7 @@ function getObstacle(location, canvasWidth, canvasHeight) {
 function createObstacles(width, height) {
     var myObstacle  = getObstacle("bottom", width, height);
     var myObstacle1 = getObstacle("top", width, height);
+
     myObstacles.push(myObstacle, myObstacle1);
 }
 
@@ -53,7 +56,10 @@ function randomNumber(min, max) {
 }  
 
 var flappyGameArea = {
-    canvas : document.createElement("canvas"),
+    canvas : document.createElement("canvas"), 
+    key : false,
+    previousKey : false,
+    pause: false,
     start : function() {
         this.context = this.canvas.getContext("2d");
         this.canvas.style = "position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; margin: auto; border:2px solid black";
@@ -61,15 +67,18 @@ var flappyGameArea = {
         this.canvas.height = getSize(window.innerHeight);
 
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval = setInterval(updateGameArea, 5);
+        this.interval = setInterval(updateGameArea, 20);
+
         window.addEventListener('keydown', function(e) {
             flappyGameArea.key = e.keyCode;
+            //console.log(e);
         });
         window.addEventListener('keyup', function(e) {
             flappyGameArea.key = false;
+            flappyGameArea.previousKey = false;
         });
         window.addEventListener('resize', function(e) {
-            console.log("hey");
+            //console.log("hey");
 
             flappyGameArea.canvas.width = getSize(window.innerWidth);
             flappyGameArea.canvas.height = getSize(window.innerHeight);
@@ -134,7 +143,7 @@ function component(width, height, color, x, y) {
         var othertop = otherobj.y;
         var otherbottom = otherobj.y + (otherobj.height);
         var crash = true;
-        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+        if ((mybottom <= othertop) || (mytop >= otherbottom) || (myright <= otherleft) || (myleft >= otherright)) {
             crash = false;
         }
         return crash;
@@ -161,7 +170,7 @@ function updateObstacles() {
     //for making all the obstacles move left.
     for (var i = 0; i < myObstacles.length; i++) {
         //console.log(myObstacles[i]);
-        myObstacles[i].x -= 1;
+        myObstacles[i].x -= 3;
         myObstacles[i].update();
     }
     //access the last element of myObstacles
@@ -170,7 +179,7 @@ function updateObstacles() {
     }
 
     if(createNewObstacles) {
-        console.log("obstacle creating: " + createNewObstacles);
+        //console.log("obstacle creating: " + createNewObstacles);
         createObstacles(width, height);
     }
 
@@ -179,78 +188,62 @@ function updateObstacles() {
         myObstacles = myObstacles.slice(2); 
         /*slice method is removing the first two elements of the array 
         and keeping the last two. Does not increase the size of the array.*/
-        console.log("Removed obstacle array size: " + myObstacles.length);
+        //console.log("Removed obstacle array size: " + myObstacles.length);
     }
 }
 
 function updateGameArea() {
-    /*Clears and updates the game area while also adding multiple obstacles
-    var x, y;
-    for (i = 0; i < myObstacles.length; i += 1) {
-        if (flappyGamePiece.crashWith(myObstacles[i])) {
-            fappyGameArea.stop();
-            return;
-        } 
-    }
-    flappyGameArea.clear();
-    fappyGameArea.frameNo += 1;
-    if (fappyGameArea.frameNo == 1 || everyinterval(150)) {
-        x = fappyGameArea.canvas.width;
-        y = fappyGameArea.canvas.height - 200;
-        myObstacles.push(new component(10, 200, "green", x, y));
-    }
-    for (i = 0; i < myObstacles.length; i += 1) {
-        myObstacles[i].x += -1;
-        myObstacles[i].update();
-    } */
+    if (flappyGameArea.pause) {
+        console.log("Game Paused!");
+    } else {
+        flappyGameArea.clear();
+        flappyGamePiece.speedX = 0;
+        flappyGamePiece.speedY = 0;
 
-    flappyGameArea.clear();
-    flappyGamePiece.speedX = 0;
-    flappyGamePiece.speedY = 0;
+        if (flappyGameArea.key && flappyGameArea.key == 32) {
+            if (flappyGameArea.previousKey != flappyGameArea.key) {
+                console.log("Jump")
+                flappyGamePiece.speedY = -50;
+                flappyGameArea.previousKey = flappyGameArea.key;
+            }
+        }
 
-    if (flappyGameArea.key && flappyGameArea.key == 13) {
-        //console.log("HELLOLOLOLOL!!");
-        flappyGamePiece.speedY = -2; 
-    }
-    //gravity
-    flappyGamePiece.speedY += 1;
+        //gravity
+        flappyGamePiece.speedY += 3;
+        updateObstacles();
 
-    flappyGamePiece.newPos();    
-    flappyGamePiece.update();
-
-    updateObstacles();
-
-    //console.log(randomNumber(1, 10));
-
-    //prompts comfirm box 
-    if (hitBottom()) {
-        restartGame();
-    }
-
-    for (i = 0; i < myObstacles.length; i ++) {
-        if (flappyGamePiece.crashWith(myObstacles[i])) {
+        if (hitBottom()) {
             restartGame();
-            return;
-        } 
+        }
+
+        for (i = 0; i < myObstacles.length; i ++) {
+            if (flappyGamePiece.crashWith(myObstacles[i])) {
+                restartGame();
+            } 
+        }
+        flappyGamePiece.newPos();
+        flappyGamePiece.update();
     }
 }
 
 function restartGame() {
-    flappyGameArea.clear();
-
-    var width = getSize(window.innerWidth);
-    var height = getSize(window.innerHeight);
-    flappyGamePiece = new component(90, 90, "black", 50, height/2);
-    createObstacles(width, height);
+    flappyGameArea.pause = true ;
 
     var confirmed = confirm("Restart Game ?");
     console.log(confirmed);
     //Pressed ok (true) restarts game
     if (confirmed) {
+        flappyGameArea.clear();
+        myObstacles = [];
+        var width = getSize(window.innerWidth);
+        var height = getSize(window.innerHeight);
+        flappyGamePiece = new component(90, 90, "black", 50, height/2);
+        createObstacles(width, height);
+        flappyGameArea.pause = false ;
         //console.log("me");
     } else { //Cancel (false) changes url location to home
-        console.log("you");
-        console.log(window.location.href);
+        //console.log("you");
+        //console.log(window.location.href);
         window.location.replace('/home');
     }
 }

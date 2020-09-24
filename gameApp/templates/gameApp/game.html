@@ -6,7 +6,15 @@
 		<style>
 			canvas { 
 				border:1px solid #d3d3d3;
-				background-color: #33FFEC;
+				background-image: url('{% static 'gameApp/img/background.png' %}');
+				background-repeat: no-repeat;
+				background-size: cover;
+				background-position: absolute;
+				top: 0px;
+				left: 0px;
+				right: 0px;
+				bottom: 0px;
+				margin: auto;
 			}
 		</style>
 		<script src="{% static 'gameApp/js/game.js' %}" type="text/javascript">

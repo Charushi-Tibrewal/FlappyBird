@@ -21,5 +21,7 @@ app_name = "gameApp"
 urlpatterns = [
     path('', views.index, name='index'),
     path('game', views.game, name='game'),
-    path('home', views.index, name='index')
+    path('home', views.index, name='index'),
+    path('login/', views.login, name='login'),
+    path('signup', views.signup, name='signup'),
 ]
